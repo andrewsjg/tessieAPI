@@ -1,8 +1,8 @@
 package tessieAPI
 
 import (
-	"fmt"
-	"io/ioutil"
+	"encoding/json"
+	"io"
 	"net/http"
 
 	"errors"
@@ -29,30 +29,68 @@ func NewAPI(token string, baseURL string) (API, error) {
 
 // This function grabs all the VINS assocaited with the account
 func getCars(token string, baseURL string) []Car {
+
 	cars := []Car{}
+	//vehicles := AllVehicles{}
+
+	url := baseURL + "/vehicles?only_active=false"
+
+	vehicles, err := doAPICall[AllVehicles](url, token)
+
+	if err != nil {
+		return cars
+	}
+
+	for _, vehicle := range vehicles.Results {
+		car := Car{}
+
+		car.DisplayName = vehicle.LastState.DisplayName
+		car.VIN = vehicle.Vin
+		car.VehicleID = vehicle.LastState.VehicleID
+
+		cars = append(cars, car)
+	}
 
 	return cars
 }
 
-func (a API) GetState() CurrentState {
-
-	currentState := CurrentState{}
+func (a API) GetState() (CurrentState, error) {
 
 	url := a.APIRoot + "/" + a.ActiveVIN + "/state"
 
-	req, _ := http.NewRequest("GET", url, nil)
+	currentState, err := doAPICall[CurrentState](url, a.Token)
+
+	if err != nil {
+		// return empty state
+		return currentState, err
+	}
+
+	return currentState, nil
+
+}
+
+// Generic function that performs the API call
+func doAPICall[T APITypes](apiEndpoint string, token string) (T, error) {
+
+	retObj := new(T)
+
+	req, _ := http.NewRequest("GET", apiEndpoint, nil)
 
 	req.Header.Add("accept", "application/json")
-	req.Header.Add("authorization", "Bearer <TOKEN>")
+	req.Header.Add("authorization", "Bearer "+token)
 
-	res, _ := http.DefaultClient.Do(req)
+	res, err := http.DefaultClient.Do(req)
+
+	if err != nil {
+
+		return *retObj, err
+	}
 
 	defer res.Body.Close()
-	body, _ := ioutil.ReadAll(res.Body)
+	body, _ := io.ReadAll(res.Body)
 
-	fmt.Println(res)
-	fmt.Println(string(body))
+	json.Unmarshal(body, retObj)
 
-	return currentState
+	return *retObj, nil
 
 }

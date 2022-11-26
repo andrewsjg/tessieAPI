@@ -1,5 +1,8 @@
 package tessieAPI
 
+type APITypes interface {
+	Location | Status | AllVehicles | CurrentState
+}
 type API struct {
 	Token     string
 	APIRoot   string
@@ -301,9 +304,9 @@ type CurrentState struct {
 	} `json:"vehicle_state"`
 }
 
-// This gets the states of all cars attached to your Tessie account
+// This gets the states of all vehichles attached to your Tessie account
 
-type AllStates struct {
+type AllVehicles struct {
 	Results []struct {
 		Vin                 string      `json:"vin"`
 		IsActive            bool        `json:"is_active"`
