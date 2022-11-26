@@ -69,6 +69,51 @@ func (a API) GetState() (CurrentState, error) {
 
 }
 
+func (a API) GetStatus() (Status, error) {
+
+	url := a.APIRoot + "/" + a.ActiveVIN + "/status"
+
+	status, err := doAPICall[Status](url, a.Token)
+
+	if err != nil {
+		// return empty state
+		return status, err
+	}
+
+	return status, nil
+
+}
+
+func (a API) GetLocation() (Location, error) {
+
+	url := a.APIRoot + "/" + a.ActiveVIN + "/location"
+
+	location, err := doAPICall[Location](url, a.Token)
+
+	if err != nil {
+		// return empty state
+		return location, err
+	}
+
+	return location, nil
+
+}
+
+func (a API) GetTires() (Tires, error) {
+
+	url := a.APIRoot + "/" + a.ActiveVIN + "/tire_pressure"
+
+	tires, err := doAPICall[Tires](url, a.Token)
+
+	if err != nil {
+		// return empty state
+		return tires, err
+	}
+
+	return tires, nil
+
+}
+
 // Generic function that performs the API call
 func doAPICall[T APITypes](apiEndpoint string, token string) (T, error) {
 

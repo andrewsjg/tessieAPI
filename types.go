@@ -1,7 +1,7 @@
 package tessieAPI
 
 type APITypes interface {
-	Location | Status | AllVehicles | CurrentState
+	Location | Status | AllVehicles | CurrentState | Tires
 }
 type API struct {
 	Token     string
@@ -24,6 +24,18 @@ type Car struct {
 	VIN         string
 	DisplayName string
 	VehicleID   int64
+}
+
+type Tires struct {
+	FrontLeft        float64 `json:"front_left"`
+	FrontRight       float64 `json:"front_right"`
+	RearLeft         float64 `json:"rear_left"`
+	RearRight        float64 `json:"rear_right"`
+	FrontLeftStatus  string  `json:"front_left_status"`
+	FrontRightStatus string  `json:"front_right_status"`
+	RearLeftStatus   string  `json:"rear_left_status"`
+	RearRightStatus  string  `json:"rear_right_status"`
+	Timestamp        int     `json:"timestamp"`
 }
 
 type CurrentState struct {
