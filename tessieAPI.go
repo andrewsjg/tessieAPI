@@ -13,7 +13,13 @@ func NewAPI(token string, baseURL string) (API, error) {
 
 	api.Token = token
 	api.APIRoot = baseURL
-	api.Cars = getCars(token, baseURL)
+	cars, err := getCars(token, baseURL)
+
+	if err != nil {
+		return api, err
+	}
+
+	api.Cars = cars
 
 	// If there are no active cars on this account then raise an error
 	if len(api.Cars) == 0 {
@@ -28,7 +34,7 @@ func NewAPI(token string, baseURL string) (API, error) {
 }
 
 // This function grabs all the VINS assocaited with the account
-func getCars(token string, baseURL string) []Car {
+func getCars(token string, baseURL string) ([]Car, error) {
 
 	cars := []Car{}
 	//vehicles := AllVehicles{}
@@ -38,7 +44,7 @@ func getCars(token string, baseURL string) []Car {
 	vehicles, err := doAPICall[AllVehicles](url, token)
 
 	if err != nil {
-		return cars
+		return cars, err
 	}
 
 	for _, vehicle := range vehicles.Results {
@@ -51,7 +57,7 @@ func getCars(token string, baseURL string) []Car {
 		cars = append(cars, car)
 	}
 
-	return cars
+	return cars, nil
 }
 
 func (a API) GetState() (CurrentState, error) {
